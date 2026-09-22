@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Study Nook</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF7FA8'%3E%3Cellipse cx='12' cy='16' rx='5.2' ry='4.4'/%3E%3Cellipse cx='5.4' cy='10.6' rx='2.2' ry='2.8'/%3E%3Cellipse cx='9.4' cy='6.4' rx='2.2' ry='2.9'/%3E%3Cellipse cx='14.6' cy='6.4' rx='2.2' ry='2.9'/%3E%3Cellipse cx='18.6' cy='10.6' rx='2.2' ry='2.8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@500;700;800&display=swap">
+<style>
+  :root {
+    --bg: #FFF6F9;
+    --surface: #FFFFFF;
+    --ink: #4A3448;
+    --ink-soft: #94788F;
+    --line: #F1D9E4;
+    --accent: #FF7FA8;
+    --track: rgba(255, 255, 255, .8);
+    --shadow: 0 1px 0 rgba(74, 52, 72, .05), 0 10px 28px -16px rgba(74, 52, 72, .28);
+
+    --ca-t: #FFE6D8;  --ca-d: #EE8D5F;
+    --tsm-t: #FFF1C4; --tsm-d: #D9A521;
+    --qm-t: #DAF3E7;  --qm-d: #43AB7E;
+    --cfp-t: #DFEAFF; --cfp-d: #5F8EE0;
+    --pno-t: #EEE4FF; --pno-d: #9275DB;
+
+    --good: #A6E3BC; --good-ink: #25603F; --good-fill: #52C07F;
+    --bad: #FFC6C6;  --bad-ink: #973844;
+    --none: #F8EEF3; --none-ink: #B99CB2;
+
+    --cat: #F7C394; --cat-dark: #E49A62; --cat-ink: #4A3448; --blush: #FF9EB8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #221A25; --surface: #2E2433; --ink: #F8E9F2; --ink-soft: #BDA3B7; --line: #45364B; --accent: #FF8FB6;
+      --track: rgba(0, 0, 0, .28);
+      --shadow: 0 1px 0 rgba(0, 0, 0, .2), 0 12px 28px -16px rgba(0, 0, 0, .7);
+      --ca-t: #45302A;  --ca-d: #F29B70;
+      --tsm-t: #433B22; --tsm-d: #E6B840;
+      --qm-t: #213C31;  --qm-d: #58C495;
+      --cfp-t: #25324A; --cfp-d: #7BA3EE;
+      --pno-t: #342A4A; --pno-d: #A68CEB;
+      --good: #2E5B40; --good-ink: #BFF2D1; --good-fill: #5ED08D;
+      --bad: #5C2E37;  --bad-ink: #FFC9CE;
+      --none: #3B3042; --none-ink: #8F7A8B;
+      --cat: #F2B98A; --cat-dark: #D98F57; --cat-ink: #3A2838; --blush: #FF8FAE;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #221A25; --surface: #2E2433; --ink: #F8E9F2; --ink-soft: #BDA3B7; --line: #45364B; --accent: #FF8FB6;
+    --track: rgba(0, 0, 0, .28);
+    --shadow: 0 1px 0 rgba(0, 0, 0, .2), 0 12px 28px -16px rgba(0, 0, 0, .7);
+    --ca-t: #45302A;  --ca-d: #F29B70;
+    --tsm-t: #433B22; --tsm-d: #E6B840;
+    --qm-t: #213C31;  --qm-d: #58C495;
+    --cfp-t: #25324A; --cfp-d: #7BA3EE;
+    --pno-t: #342A4A; --pno-d: #A68CEB;
+    --good: #2E5B40; --good-ink: #BFF2D1; --good-fill: #5ED08D;
+    --bad: #5C2E37;  --bad-ink: #FFC9CE;
+    --none: #3B3042; --none-ink: #8F7A8B;
+    --cat: #F2B98A; --cat-dark: #D98F57; --cat-ink: #3A2838; --blush: #FF8FAE;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 500 15px/1.5 "Nunito", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 28px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  h1, h2, h3 { font-family: "Fredoka", ui-rounded, system-ui, sans-serif; margin: 0; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+  /* header + cat */
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+  h1 { font-weight: 600; font-size: clamp(32px, 7vw, 44px); line-height: 1; letter-spacing: -.5px; }
+  h1 span { color: var(--accent); }
+  .date { font-family: "Fredoka", system-ui, sans-serif; font-size: 16px; color: var(--ink-soft); }
+
+  .cat-track { position: relative; height: 58px; border-bottom: 2.5px dashed var(--line); margin-top: -18px; }
+  .cat-walk { position: absolute; bottom: -4px; left: 0; width: 80px; height: 56px; animation: walk 26s linear infinite; }
+  .cat-flip { width: 100%; height: 100%; animation: flip 26s linear infinite; }
+  .cat { display: block; overflow: visible; }
+  @keyframes walk { 0% { left: 0; } 50% { left: calc(100% - 80px); } 100% { left: 0; } }
+  @keyframes flip { 0%, 49.99% { transform: scaleX(1); } 50%, 99.99% { transform: scaleX(-1); } 100% { transform: scaleX(1); } }
+  .leg { transform-box: fill-box; transform-origin: 50% 15%; animation: step .5s ease-in-out infinite alternate; transition: opacity .4s; }
+  .leg.b { animation-delay: -.5s; }
+  @keyframes step { from { transform: rotate(20deg); } to { transform: rotate(-20deg); } }
+  .bob { animation: bob .25s ease-in-out infinite alternate; }
+  @keyframes bob { to { transform: translateY(-1px); } }
+  .rest { transition: transform .5s ease; }
+  .tail { transform-box: view-box; transform-origin: 18px 34px; animation: tail 1.4s ease-in-out infinite alternate; }
+  @keyframes tail { from { transform: rotate(-10deg); } to { transform: rotate(12deg); } }
+  .eyes-closed { display: none; }
+  .zzz { position: absolute; top: -10px; left: 50%; display: none; font: 600 13px/1 "Fredoka", system-ui, sans-serif; color: var(--ink-soft); }
+  .zzz span { position: absolute; opacity: 0; animation: float 3s ease-out infinite; }
+  .zzz span:nth-child(2) { animation-delay: 1s; font-size: 11px; }
+  .zzz span:nth-child(3) { animation-delay: 2s; font-size: 9px; }
+  @keyframes float { 0% { opacity: 0; transform: translate(0, 8px); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(14px, -18px); } }
+
+  body.studying .cat-walk, body.studying .cat-flip { animation-play-state: paused; }
+  body.studying .leg { opacity: 0; animation: none; }
+  body.studying .bob { animation: none; }
+  body.studying .rest { transform: translateY(5px); }
+  body.studying .tail { animation-duration: 4s; }
+  body.studying .eyes-open { display: none; }
+  body.studying .eyes-closed { display: inline; }
+  body.studying .zzz { display: block; }
+
+  /* sections */
+  section { display: flex; flex-direction: column; gap: 14px; }
+  h2 { font-weight: 500; font-size: 21px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  h2 svg { color: var(--accent); }
+
+  /* stopwatches */
+  .timers { display: flex; flex-direction: column; gap: 12px; }
+  .timer {
+    background: var(--tint);
+    border: 2px solid transparent;
+    border-radius: 24px;
+    padding: 14px 16px 14px 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px 18px;
+    transition: border-color .3s, box-shadow .3s, transform .3s;
+  }
+  .timer.running { border-color: var(--deep); box-shadow: 0 12px 26px -16px var(--deep); }
+  .t-name { font-weight: 500; font-size: 17px; line-height: 1.25; text-wrap: balance; }
+  .t-prog { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .bar { flex: 1; max-width: 170px; height: 8px; border-radius: 99px; background: var(--track); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--deep); border-radius: inherit; transition: width .6s ease, background .3s; }
+  .timer.met .bar i { background: var(--good-fill); }
+  .t-today { color: var(--ink); font-weight: 700; }
+  .goal { display: inline-flex; align-items: baseline; gap: 1px; }
+  .goal input {
+    width: 2.9em; padding: 0 2px; border: 0; border-bottom: 1.5px dashed var(--ink-soft); border-radius: 0;
+    background: transparent; color: var(--ink); font: inherit; font-weight: 700; text-align: center;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  .goal input::-webkit-outer-spin-button, .goal input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .t-paw { color: var(--good-fill); display: none; }
+  .timer.met .t-paw { display: inline-flex; }
+
+  .t-clock { display: flex; align-items: center; gap: 8px; font: 800 clamp(26px, 5vw, 32px)/1 "Nunito", ui-rounded, system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: .3px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--deep); opacity: 0; }
+  .running .dot { opacity: 1; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(.55); opacity: .5; } }
+
+  .t-btns { display: flex; gap: 8px; }
+  .t-btns button {
+    width: 48px; height: 48px; border: 0; display: grid; place-items: center;
+    transition: transform .15s ease, opacity .2s;
+  }
+  .t-btns button:hover:not(:disabled) { transform: scale(1.07); }
+  .t-btns button:active:not(:disabled) { transform: scale(.94); }
+  .t-btns svg { width: 22px; height: 22px; fill: currentColor; }
+  .b-go { border-radius: 50%; background: var(--deep); color: #fff; box-shadow: 0 6px 14px -8px var(--deep); }
+  .b-end { border-radius: 16px; background: var(--track); color: var(--deep); }
+  .b-end:disabled { opacity: .45; cursor: default; }
+
+  /* calendar */
+  .cal-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .nav { display: flex; align-items: center; gap: 4px; }
+  .nav button { border: 0; background: var(--surface); box-shadow: var(--shadow); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
+  .nav button svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .nav .wk { width: auto; min-width: 128px; padding: 0 14px; border-radius: 99px; box-shadow: none; background: transparent; font-family: "Fredoka", system-ui, sans-serif; font-size: 15px; color: var(--ink); }
+  .nav .wk.off { color: var(--ink-soft); }
+
+  .cal { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); padding: 14px; }
+  .cal-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .cal-scroll::-webkit-scrollbar { display: none; }
+  .week {
+    flex: 0 0 100%; scroll-snap-align: start;
+    display: grid; grid-template-columns: 52px repeat(7, minmax(0, 1fr)); gap: 6px;
+  }
+  .dh { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 4px; }
+  .dw { font-size: 12px; color: var(--ink-soft); font-weight: 700; }
+  .dn { font: 500 16px/1 "Fredoka", system-ui, sans-serif; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; }
+  .dh.today .dn { background: var(--accent); color: #fff; }
+  .rl { display: flex; align-items: center; gap: 6px; font: 500 13px/1.1 "Fredoka", system-ui, sans-serif; color: var(--ink); min-width: 0; }
+  .rl i { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+  .cell {
+    height: 38px; border-radius: 12px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
+    background: var(--none); color: var(--none-ink);
+    transition: background .3s, color .3s;
+  }
+  .cell.good { background: var(--good); color: var(--good-ink); }
+  .cell.bad { background: var(--bad); color: var(--bad-ink); }
+  .cell.future { background: transparent; border: 1.5px dashed var(--line); }
+  .paw-slot { height: 22px; display: grid; place-items: center; color: var(--good-fill); }
+
+  @media (max-width: 560px) {
+    .timer { grid-template-columns: 1fr auto; padding: 14px 14px 14px 18px; }
+    .t-info { grid-column: 1 / -1; }
+    .week { grid-template-columns: 40px repeat(7, minmax(0, 1fr)); gap: 4px; }
+    .cal { padding: 12px 10px; }
+    .cell { height: 34px; border-radius: 10px; font-size: 11px; letter-spacing: -.2px; }
+    .rl { font-size: 12px; gap: 4px; }
+    .rl i { width: 7px; height: 7px; }
+    .dn { width: 26px; height: 26px; font-size: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cat-walk, .cat-flip, .leg, .bob, .tail, .zzz span, .running .dot { animation: none !important; }
+    .zzz span { opacity: 1; }
+    .zzz span:nth-child(2) { transform: translate(7px, -8px); }
+    .zzz span:nth-child(3) { transform: translate(14px, -16px); }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>study nook<span>.</span></h1>
+    <div class="date" id="today"></div>
+  </header>
+
+  <div class="cat-track" aria-hidden="true">
+    <div class="cat-walk">
+      <div class="zzz"><span>z</span><span>z</span><span>z</span></div>
+      <div class="cat-flip">
+        <svg class="cat" viewBox="0 0 80 56" width="80" height="56">
+          <g class="rest"><g class="bob">
+            <path class="tail" d="M18 34 C 6 33, 3 22, 9 13" fill="none" stroke="var(--cat)" stroke-width="5" stroke-linecap="round"/>
+            <rect class="leg a" x="21" y="36" width="6" height="14" rx="3" fill="var(--cat-dark)"/>
+            <rect class="leg b" x="44" y="36" width="6" height="14" rx="3" fill="var(--cat-dark)"/>
+            <rect class="leg b" x="26" y="37" width="6.5" height="14" rx="3.2" fill="var(--cat)"/>
+            <rect class="leg a" x="49" y="37" width="6.5" height="14" rx="3.2" fill="var(--cat)"/>
+            <ellipse cx="37" cy="34" rx="21" ry="11.5" fill="var(--cat)"/>
+            <path d="M28 23.8 q2.2 4 0 7.2 M34 22.8 q2.2 4 0 7.2 M40 23 q2.2 4 0 7.2" stroke="var(--cat-dark)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <path d="M50 18 L52 5 L60 13 Z" fill="var(--cat)"/>
+            <path d="M62 13 L70 5 L71 18 Z" fill="var(--cat)"/>
+            <path d="M52.8 14 L53.6 8.6 L57 12 Z" fill="var(--blush)"/>
+            <path d="M65 12 L68.6 8.6 L69 14 Z" fill="var(--blush)"/>
+            <circle cx="60" cy="23" r="12" fill="var(--cat)"/>
+            <path d="M58 12.5 q2 3 0 5 M62 12.5 q-2 3 0 5" stroke="var(--cat-dark)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <g class="eyes-open" fill="var(--cat-ink)"><circle cx="55.5" cy="22" r="1.9"/><circle cx="64.5" cy="22" r="1.9"/></g>
+            <g class="eyes-closed" fill="none" stroke="var(--cat-ink)" stroke-width="1.3" stroke-linecap="round"><path d="M53.4 22 q2.1 1.9 4.2 0"/><path d="M62.4 22 q2.1 1.9 4.2 0"/></g>
+            <ellipse cx="52.6" cy="26.4" rx="2.3" ry="1.3" fill="var(--blush)" opacity=".75"/>
+            <ellipse cx="67.4" cy="26.4" rx="2.3" ry="1.3" fill="var(--blush)" opacity=".75"/>
+            <path d="M58.9 24.8 h2.2 l-1.1 1.3 z" fill="var(--blush)"/>
+            <path d="M60 26.2 q-1.1 1.7 -2.5 .6 M60 26.2 q1.1 1.7 2.5 .6" stroke="var(--cat-ink)" stroke-width="1" fill="none" stroke-linecap="round"/>
+          </g></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <section aria-labelledby="h-sw">
+    <h2 id="h-sw">stopwatches</h2>
+    <div class="timers" id="timers"></div>
+  </section>
+
+  <section aria-labelledby="h-cal">
+    <div class="cal-top">
+      <h2 id="h-cal">calendar</h2>
+      <div class="nav">
+        <button id="prev" aria-label="Previous week"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="wk" id="wk" title="This week"></button>
+        <button id="next" aria-label="Next week"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="cal"><div class="cal-scroll" id="cal"></div></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const SUBJECTS = [
+    { id: 'ca',    name: 'Complex Analysis',                          short: 'CA',    goal: 1.5 },
+    { id: 'tsm',   name: 'Thermodynamics and Statistical Mechanics',  short: 'TSM',   goal: 1.5 },
+    { id: 'qm',    name: 'Quantum Mechanics',                         short: 'QM',    goal: 1.5 },
+    { id: 'cfp',   name: 'Classical Forms and Performances',          short: 'CFP',   goal: 1 },
+    { id: 'piano', name: 'Piano',                                     short: 'Piano', goal: 1 },
+  ];
+  const COLOR = { ca: 'ca', tsm: 'tsm', qm: 'qm', cfp: 'cfp', piano: 'pno' };
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const LETTER = ['M','T','W','T','F','S','S'];
+  const LS = 'study-nook.v1';
+
+  const ICON = {
+    play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.6"/><rect x="13.5" y="5" width="4" height="14" rx="1.6"/></svg>',
+    stop: '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>',
+    paw: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><ellipse cx="12" cy="16" rx="5.2" ry="4.4"/><ellipse cx="5.4" cy="10.6" rx="2.2" ry="2.8"/><ellipse cx="9.4" cy="6.4" rx="2.2" ry="2.9"/><ellipse cx="14.6" cy="6.4" rx="2.2" ry="2.9"/><ellipse cx="18.6" cy="10.6" rx="2.2" ry="2.8"/></svg>',
+  };
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const weekStart = d => addDays(d, -((d.getDay() + 6) % 7));
+  const fmtClock = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; };
+  const fmtHM = sec => { const m = Math.floor(sec / 60); return `${Math.floor(m / 60)}:${pad(m % 60)}`; };
+
+  /* ---------- state ---------- */
+  const freshTimers = () => Object.fromEntries(SUBJECTS.map(s => [s.id, { run: null, acc: 0 }]));
+  const freshGoals = () => ({ ...Object.fromEntries(SUBJECTS.map(s => [s.id, s.goal])), since: dayKey(new Date()) });
+  const normTimers = t => Object.fromEntries(SUBJECTS.map(s => {
+    const v = (t && t[s.id]) || {};
+    return [s.id, { run: typeof v.run === 'number' ? v.run : null, acc: Number(v.acc) || 0 }];
+  }));
+
+  let state = { days: {}, timers: freshTimers(), goals: freshGoals() };
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS) || 'null');
+    if (saved) state = { days: saved.days || {}, timers: normTimers(saved.timers), goals: { ...freshGoals(), ...saved.goals } };
+  } catch (e) {}
+
+  /* ---------- persistence: shared db when available, browser storage as cache ---------- */
+  let db = null, dbState = 'pending';
+  const dirty = new Set(), chains = {};
+  const saveLocal = () => { try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {} };
+  const docData = p => p === 'meta/timers' ? state.timers : p === 'meta/goals' ? state.goals : (state.days[p.slice(5)] || {});
+  const setOnce = async (p, data) => {
+    try { await db.doc(p).set(data); }
+    catch (e) {
+      if (e && e.code === 'unavailable') {
+        await new Promise(r => setTimeout(r, 400 + Math.random() * 900));
+        try { await db.doc(p).set(data); } catch (_) {}
+      } else console.warn('save failed', p, e);
+    }
+  };
+  const push = p => {
+    const data = JSON.parse(JSON.stringify(docData(p)));
+    chains[p] = (chains[p] || Promise.resolve()).then(() => setOnce(p, data));
+  };
+  const persist = paths => {
+    saveLocal();
+    if (dbState === 'pending') paths.forEach(p => dirty.add(p));
+    else if (dbState === 'on') [...new Set(paths)].forEach(push);
+  };
+
+  /* ---------- time math ---------- */
+  function daySecs(k, id, now) {
+    let s = (state.days[k] && state.days[k][id]) || 0;
+    const run = state.timers[id].run;
+    if (run) {
+      const a = parseKey(k).getTime(), b = addDays(parseKey(k), 1).getTime();
+      const lo = Math.max(run, a), hi = Math.min(now, b);
+      if (hi > lo) s += (hi - lo) / 1000;
+    }
+    return s;
+  }
+  function credit(id, from, to) {
+    const touched = [];
+    let t = from;
+    while (t < to) {
+      const d = new Date(t), next = addDays(d, 1).getTime(), e = Math.min(next, to), k = dayKey(d);
+      const day = state.days[k] = { ...(state.days[k] || {}) };
+      day[id] = Math.round(((day[id] || 0) + (e - t) / 1000) * 10) / 10;
+      touched.push('days/' + k);
+      t = e;
+    }
+    return touched;
+  }
+  function status(k, id, secs, todayK) {
+    const goal = Number(state.goals[id]) || 0;
+    if (goal <= 0) return secs >= 60 ? 'good' : (k > todayK ? 'future' : 'none');
+    if (secs >= goal * 3600) return 'good';
+    if (k > todayK) return 'future';
+    if (k < state.goals.since && secs < 60) return 'none';
+    return 'bad';
+  }
+
+  /* ---------- actions ---------- */
+  function toggle(id) {
+    const t = state.timers[id], now = Date.now(), paths = ['meta/timers'];
+    if (t.run) { paths.push(...credit(id, t.run, now)); t.acc += now - t.run; t.run = null; }
+    else t.run = now;
+    persist(paths);
+    renderCalendar(); updateTimers();
+  }
+  function end(id) {
+    const t = state.timers[id], now = Date.now(), paths = ['meta/timers'];
+    if (t.run) paths.push(...credit(id, t.run, now));
+    t.run = null; t.acc = 0;
+    persist(paths);
+    renderCalendar(); updateTimers();
+  }
+
+  /* ---------- stopwatches ---------- */
+  const timersEl = $('#timers');
+  timersEl.innerHTML = SUBJECTS.map(s => `
+    <article class="timer" id="t-${s.id}" style="--tint:var(--${COLOR[s.id]}-t);--deep:var(--${COLOR[s.id]}-d)">
+      <div class="t-info">
+        <h3 class="t-name">${s.name}</h3>
+        <div class="t-prog">
+          <div class="bar"><i></i></div>
+          <span class="t-today">0:00</span><span>/</span>
+          <label class="goal"><input id="goal-${s.id}" type="number" min="0" max="12" step="0.25" inputmode="decimal" aria-label="${s.name} daily goal in hours">h</label>
+          <span class="t-paw">${ICON.paw}</span>
+        </div>
+      </div>
+      <div class="t-clock"><span class="dot"></span><span class="digits">0:00:00</span></div>
+      <div class="t-btns">
+        <button class="b-go" aria-label="Start ${s.name}">${ICON.play}</button>
+        <button class="b-end" aria-label="End ${s.name}">${ICON.stop}</button>
+      </div>
+    </article>`).join('');
+
+  SUBJECTS.forEach(s => {
+    const el = $('#t-' + s.id);
+    $('.b-go', el).addEventListener('click', () => toggle(s.id));
+    $('.b-end', el).addEventListener('click', () => end(s.id));
+    const input = $('input', el);
+    input.addEventListener('change', () => {
+      let v = parseFloat(input.value);
+      if (!isFinite(v) || v < 0) v = 0;
+      v = Math.min(12, Math.round(v * 4) / 4);
+      input.value = v;
+      state.goals[s.id] = v;
+      persist(['meta/goals']);
+      renderCalendar(); updateTimers();
+    });
+  });
+
+  function updateTimers(now = Date.now()) {
+    const todayK = dayKey(new Date(now));
+    let any = false;
+    SUBJECTS.forEach(s => {
+      const el = $('#t-' + s.id), t = state.timers[s.id];
+      const running = !!t.run;
+      any = any || running;
+      $('.digits', el).textContent = fmtClock(t.acc + (running ? now - t.run : 0));
+      el.classList.toggle('running', running);
+      const go = $('.b-go', el);
+      if (go.dataset.mode !== String(running)) {
+        go.dataset.mode = String(running);
+        go.innerHTML = running ? ICON.pause : ICON.play;
+        go.setAttribute('aria-label', `${running ? 'Pause' : 'Start'} ${s.name}`);
+      }
+      $('.b-end', el).disabled = !running && t.acc === 0;
+      const secs = daySecs(todayK, s.id, now), goal = Number(state.goals[s.id]) || 0;
+      const pct = goal > 0 ? Math.min(1, secs / (goal * 3600)) : (secs > 0 ? 1 : 0);
+      $('.bar i', el).style.width = (pct * 100).toFixed(1) + '%';
+      el.classList.toggle('met', goal > 0 ? secs >= goal * 3600 : false);
+      $('.t-today', el).textContent = fmtHM(secs);
+      const input = $('input', el);
+      if (document.activeElement !== input && input.value !== String(goal)) input.value = goal;
+    });
+    document.body.classList.toggle('studying', any);
+  }
+
+  /* ---------- calendar ---------- */
+  const cal = $('#cal'), wk = $('#wk');
+  let weeks = [], builtFor = '', lastIdx = 0;
+
+  function cellHTML(k, s, now, todayK) {
+    const secs = daySecs(k, s.id, now), st = status(k, s.id, secs, todayK);
+    const txt = secs >= 60 ? fmtHM(secs) : '';
+    return `<div class="cell ${st}" data-k="${k}" data-s="${s.id}" title="${s.name} · ${fmtHM(secs)}">${txt}</div>`;
+  }
+  function allMet(k, now) {
+    const set = SUBJECTS.filter(s => (Number(state.goals[s.id]) || 0) > 0);
+    return set.length > 0 && set.every(s => daySecs(k, s.id, now) >= state.goals[s.id] * 3600);
+  }
+  function weekLabel(start) {
+    const end = addDays(start, 6);
+    return `${MON[start.getMonth()]} ${start.getDate()} – ${start.getMonth() === end.getMonth() ? '' : MON[end.getMonth()] + ' '}${end.getDate()}`;
+  }
+
+  function renderCalendar() {
+    const now = Date.now(), today = new Date(now), todayK = dayKey(today), cur = weekStart(today);
+    const keep = weeks[visibleIdx()] || dayKey(cur);
+    const earliest = [state.goals.since, ...Object.keys(state.days)].filter(Boolean).sort()[0] || todayK;
+    let first = weekStart(parseKey(earliest));
+    const min = addDays(cur, -21);
+    if (first > min) first = min;
+    const last = addDays(cur, 14);
+    weeks = [];
+    let html = '';
+    for (let w = first; w <= last; w = addDays(w, 7)) {
+      weeks.push(dayKey(w));
+      const days = [...Array(7)].map((_, i) => addDays(w, i));
+      html += `<div class="week" data-w="${dayKey(w)}"><div></div>`;
+      html += days.map((d, i) => `<div class="dh${dayKey(d) === todayK ? ' today' : ''}"><span class="dw">${LETTER[i]}</span><span class="dn">${d.getDate()}</span></div>`).join('');
+      SUBJECTS.forEach(s => {
+        html += `<div class="rl" title="${s.name}"><i style="--c:var(--${COLOR[s.id]}-d)"></i>${s.short}</div>`;
+        html += days.map(d => cellHTML(dayKey(d), s, now, todayK)).join('');
+      });
+      html += '<div></div>' + days.map(d => `<div class="paw-slot" data-paw="${dayKey(d)}">${allMet(dayKey(d), now) ? ICON.paw : ''}</div>`).join('');
+      html += '</div>';
+    }
+    cal.innerHTML = html;
+    const idx = Math.max(0, weeks.indexOf(builtFor ? keep : dayKey(cur)));
+    builtFor = todayK;
+    cal.scrollLeft = idx * cal.clientWidth;
+    updateWeekLabel();
+  }
+
+  function updateTodayCells(now) {
+    const todayK = dayKey(new Date(now));
+    SUBJECTS.forEach(s => {
+      if (!state.timers[s.id].run) return;
+      const c = cal.querySelector(`.cell[data-k="${todayK}"][data-s="${s.id}"]`);
+      if (!c) return;
+      const secs = daySecs(todayK, s.id, now), st = status(todayK, s.id, secs, todayK);
+      c.className = 'cell ' + st;
+      c.textContent = secs >= 60 ? fmtHM(secs) : '';
+      c.title = `${s.name} · ${fmtHM(secs)}`;
+    });
+    const paw = cal.querySelector(`[data-paw="${todayK}"]`);
+    if (paw) paw.innerHTML = allMet(todayK, now) ? ICON.paw : '';
+  }
+
+  function visibleIdx() { return cal.clientWidth ? Math.round(cal.scrollLeft / cal.clientWidth) : 0; }
+  function updateWeekLabel() {
+    const k = weeks[visibleIdx()];
+    if (!k) return;
+    wk.textContent = weekLabel(parseKey(k));
+    wk.classList.toggle('off', k !== dayKey(weekStart(new Date())));
+    lastIdx = visibleIdx();
+  }
+  let rafPending = false;
+  cal.addEventListener('scroll', () => {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => { rafPending = false; updateWeekLabel(); });
+  }, { passive: true });
+  const smooth = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  $('#prev').addEventListener('click', () => cal.scrollBy({ left: -cal.clientWidth, behavior: smooth }));
+  $('#next').addEventListener('click', () => cal.scrollBy({ left: cal.clientWidth, behavior: smooth }));
+  wk.addEventListener('click', () => {
+    const i = weeks.indexOf(dayKey(weekStart(new Date())));
+    if (i >= 0) cal.scrollTo({ left: i * cal.clientWidth, behavior: smooth });
+  });
+
+  window.addEventListener('resize', () => { cal.scrollLeft = lastIdx * cal.clientWidth; });
+
+  /* ---------- clock ---------- */
+  function renderDate() {
+    const d = new Date();
+    $('#today').textContent = `${DOW[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`;
+  }
+  function tick() {
+    const now = Date.now();
+    if (dayKey(new Date(now)) !== builtFor) { renderDate(); renderCalendar(); }
+    updateTimers(now);
+    updateTodayCells(now);
+  }
+
+  renderDate();
+  renderCalendar();
+  lastIdx = visibleIdx();
+  updateTimers();
+  setInterval(tick, 500);
+
+  /* ---------- connect the shared store ---------- */
+  (async () => {
+    let d = null;
+    try { d = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { d = null; }
+    if (!d) { dbState = 'off'; dirty.clear(); return; }
+    db = d; dbState = 'on';
+    dirty.forEach(push); dirty.clear();
+    const onErr = e => console.warn('sync stopped', e);
+
+    db.doc('meta/goals').onSnapshot(snap => {
+      if (snap.exists) state.goals = { ...freshGoals(), ...snap.data() };
+      else push('meta/goals');
+      saveLocal(); renderCalendar(); updateTimers();
+    }, onErr);
+
+    db.doc('meta/timers').onSnapshot(snap => {
+      if (snap.exists) { state.timers = normTimers(snap.data()); saveLocal(); updateTimers(); }
+    }, onErr);
+
+    db.collection('days').onSnapshot(snap => {
+      const days = {};
+      snap.docs.forEach(doc => { if (doc.exists) days[doc.id] = { ...doc.data() }; });
+      state.days = days;
+      saveLocal(); renderCalendar(); updateTimers();
+    }, onErr);
+  })();
+})();
+</script>
+</body>
+</html>
