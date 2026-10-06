@@ -160,6 +160,10 @@
   .t-time small { font-size: .55em; font-weight: 700; color: var(--ink-soft); }
   .t-total { font-size: 13px; line-height: 1; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .t-total b { color: var(--ink); font-weight: 700; }
+  .t-total { display: flex; align-items: center; gap: 4px; }
+  .t-fix { border: 0; padding: 0; width: 24px; height: 24px; margin: -6px -4px -6px 0; border-radius: 50%; display: grid; place-items: center; background: transparent; color: var(--ink-soft); transition: color .2s, background .2s; }
+  .t-fix:hover { color: var(--ink); background: var(--track); }
+  .t-fix svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--deep); opacity: 0; }
   .running .dot { opacity: 1; animation: pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(.55); opacity: .5; } }
@@ -201,12 +205,40 @@
     height: 38px; border-radius: 12px; display: grid; place-items: center;
     font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
     background: var(--none); color: var(--none-ink);
-    transition: background .3s, color .3s;
+    border: 0; padding: 0; width: 100%; font-family: inherit; cursor: pointer;
+    transition: background .3s, color .3s, filter .2s;
   }
+  .cell:hover:not(:disabled) { filter: brightness(.95); }
+  .cell:disabled { cursor: default; }
   .cell.good { background: var(--good); color: var(--good-ink); }
   .cell.bad { background: var(--bad); color: var(--bad-ink); }
   .cell.future { background: transparent; border: 1.5px dashed var(--line); }
   .paw-slot { height: 22px; display: grid; place-items: center; color: var(--good-fill); }
+
+  /* remove-time dialog + undo toast */
+  dialog.ed { border: 0; padding: 0; border-radius: 24px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); width: min(360px, calc(100vw - 32px)); }
+  dialog.ed::backdrop { background: rgba(34, 26, 37, .35); }
+  .ed form { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .ed h3 { font-weight: 500; font-size: 21px; }
+  .ed-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink-soft); }
+  .ed-row b { color: var(--ink); font-size: 16px; font-variant-numeric: tabular-nums; }
+  .ed select, .ed input { font: inherit; font-weight: 700; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 10px; min-width: 0; }
+  .ed select { max-width: 210px; }
+  .ed-amt { display: flex; align-items: center; gap: 6px; }
+  .ed-amt input { width: 4.2em; text-align: center; }
+  .ed-amt input { -moz-appearance: textfield; appearance: textfield; }
+  .ed-amt input::-webkit-outer-spin-button, .ed-amt input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .ed-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
+  .ed-note:empty { display: none; }
+  .ed-acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .ed-acts button { border: 0; border-radius: 99px; padding: 9px 16px; font-weight: 700; background: var(--none); color: var(--ink); }
+  .ed-acts .primary { background: var(--accent); color: #fff; }
+  .ed-acts .primary:disabled { opacity: .45; cursor: default; }
+  .ed-acts .ghost { background: transparent; color: var(--bad-ink); margin-right: auto; padding-inline: 4px; }
+  .ed-acts .ghost:disabled { opacity: .45; cursor: default; }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 16px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px); padding: 8px 8px 8px 18px; border-radius: 99px; background: var(--ink); color: var(--bg); font-size: 14px; box-shadow: var(--shadow); transition: opacity .25s, transform .25s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast button { flex: none; border: 0; border-radius: 99px; padding: 6px 14px; background: var(--accent); color: #fff; font-weight: 800; }
 
   @media (max-width: 560px) {
     .timer { grid-template-columns: 1fr auto; padding: 14px 14px 14px 18px; }
@@ -283,6 +315,28 @@
   </section>
 </main>
 
+<dialog class="ed" id="ed" aria-labelledby="ed-title">
+  <form method="dialog">
+    <h3 id="ed-title">remove time</h3>
+    <label class="ed-row">subject <select id="ed-sub"></select></label>
+    <label class="ed-row">day <input type="date" id="ed-day" required></label>
+    <div class="ed-row">recorded that day <b id="ed-have">0:00:00</b></div>
+    <div class="ed-row">remove
+      <span class="ed-amt">
+        <input id="ed-hr" type="number" min="0" max="24" step="1" inputmode="numeric" placeholder="0" aria-label="Hours to remove">h
+        <input id="ed-min" type="number" min="0" max="59" step="1" inputmode="numeric" placeholder="0" aria-label="Minutes to remove">m
+      </span>
+    </div>
+    <p class="ed-note" id="ed-note"></p>
+    <div class="ed-acts">
+      <button type="button" class="ghost" id="ed-clear">clear whole day</button>
+      <button value="cancel" formnovalidate>cancel</button>
+      <button type="button" class="primary" id="ed-go">remove</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"><span id="toast-msg"></span><button id="toast-undo">undo</button></div>
+
 <script>
 (() => {
   const SUBJECTS = [
@@ -302,6 +356,7 @@
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',
     pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.6"/><rect x="13.5" y="5" width="4" height="14" rx="1.6"/></svg>',
     stop: '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>',
+    pencil: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
     paw: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><ellipse cx="12" cy="16" rx="5.2" ry="4.4"/><ellipse cx="5.4" cy="10.6" rx="2.2" ry="2.8"/><ellipse cx="9.4" cy="6.4" rx="2.2" ry="2.9"/><ellipse cx="14.6" cy="6.4" rx="2.2" ry="2.9"/><ellipse cx="18.6" cy="10.6" rx="2.2" ry="2.8"/></svg>',
   };
 
@@ -422,7 +477,7 @@
       </div>
       <div class="t-clock">
         <div class="t-time"><span class="dot"></span><span><span class="hms">0:00:00</span><small class="ms">.000</small></span></div>
-        <div class="t-total">total <b>0:00:00</b></div>
+        <div class="t-total">total <b>0:00:00</b><button class="t-fix" aria-label="Remove time from ${s.name}" title="remove time">${ICON.pencil}</button></div>
       </div>
       <div class="t-btns">
         <button class="b-go" aria-label="Start ${s.name}">${ICON.play}</button>
@@ -434,6 +489,7 @@
     const el = $('#t-' + s.id);
     $('.b-go', el).addEventListener('click', () => toggle(s.id));
     $('.b-end', el).addEventListener('click', () => end(s.id));
+    $('.t-fix', el).addEventListener('click', () => openEd(s.id, dayKey(new Date())));
     const input = $('input', el);
     input.addEventListener('change', () => {
       let v = parseFloat(input.value);
@@ -489,7 +545,22 @@
       if (document.activeElement !== input && input.value !== String(goal)) input.value = goal;
     });
     document.body.classList.toggle('studying', any);
+    updateTitle(now);
   }
+
+  /* ---------- tab title: show running stopwatches, like google's stopwatch ---------- */
+  const BASE_TITLE = document.title;
+  function updateTitle(now = Date.now()) {
+    const live = SUBJECTS.filter(s => state.timers[s.id].run)
+      .map(s => { const t = state.timers[s.id]; return `${fmtClock(t.acc + now - t.run)} ${s.short}`; });
+    const want = live.length ? live.join(' · ') : BASE_TITLE;
+    if (document.title !== want) document.title = want;
+  }
+  // browsers slow down timers in background tabs; a tiny worker keeps the title ticking
+  try {
+    const w = new Worker(URL.createObjectURL(new Blob(['setInterval(() => postMessage(0), 1000)'], { type: 'text/javascript' })));
+    w.onmessage = () => { if (document.hidden) updateTitle(); };
+  } catch (e) {}
 
   /* ---------- calendar ---------- */
   const cal = $('#cal'), wk = $('#wk');
@@ -498,7 +569,7 @@
   function cellHTML(k, s, now, todayK) {
     const secs = daySecs(k, s.id, now), st = status(k, s.id, secs, todayK);
     const txt = secs >= 60 ? fmtHM(secs) : '';
-    return `<div class="cell ${st}" data-k="${k}" data-s="${s.id}" title="${s.name} · ${fmtHM(secs)}">${txt}</div>`;
+    return `<button class="cell ${st}" data-k="${k}" data-s="${s.id}" title="${s.name} · ${fmtHM(secs)}"${k > todayK ? ' disabled' : ''}>${txt}</button>`;
   }
   function allMet(k, now) {
     const set = SUBJECTS.filter(s => (Number(state.goals[s.id]) || 0) > 0);
@@ -575,7 +646,90 @@
     if (i >= 0) cal.scrollTo({ left: i * cal.clientWidth, behavior: smooth });
   });
 
+  cal.addEventListener('click', e => {
+    const c = e.target.closest('.cell');
+    if (c && !c.disabled) openEd(c.dataset.s, c.dataset.k);
+  });
+
   window.addEventListener('resize', () => { cal.scrollLeft = lastIdx * cal.clientWidth; });
+
+  /* ---------- removing time (for when you forgot to pause) ---------- */
+  function removeTime(id, k, secs) {
+    sync();
+    const t = state.timers[id], now = Date.now();
+    // bank a running stopwatch's live time into the day totals first; it keeps running
+    if (t.run) { credit(id, t.run, now); t.acc += now - t.run; t.run = now; }
+    const day = state.days[k] = { ...(state.days[k] || {}) };
+    const have = Number(day[id]) || 0, cut = Math.min(have, Math.max(0, secs));
+    if (!(cut > 0)) return null;
+    day[id] = Math.round((have - cut) * 1000) / 1000;
+    // trimming today also trims the stopwatch, so it stops showing the forgotten time
+    let accCut = 0;
+    if (k === dayKey(new Date(now))) { accCut = Math.min(t.acc, cut * 1000); t.acc -= accCut; }
+    save(); renderCalendar(); updateTimers();
+    return { id, k, cut, accCut };
+  }
+  function undoRemove(u) {
+    sync();
+    const day = state.days[u.k] = { ...(state.days[u.k] || {}) };
+    day[u.id] = Math.round(((Number(day[u.id]) || 0) + u.cut) * 1000) / 1000;
+    state.timers[u.id].acc += u.accCut;
+    save(); renderCalendar(); updateTimers();
+  }
+
+  const ed = $('#ed'), edSub = $('#ed-sub'), edDay = $('#ed-day'), edHave = $('#ed-have');
+  const edHr = $('#ed-hr'), edMin = $('#ed-min'), edGo = $('#ed-go'), edClear = $('#ed-clear'), edNote = $('#ed-note');
+  edSub.innerHTML = SUBJECTS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  const edAmount = () => (Math.max(0, parseFloat(edHr.value) || 0) * 3600) + (Math.max(0, parseFloat(edMin.value) || 0) * 60);
+
+  function refreshEd() {
+    const now = Date.now(), todayK = dayKey(new Date(now)), k = edDay.value, id = edSub.value;
+    const ok = /^\d{4}-\d{2}-\d{2}$/.test(k) && k <= todayK;
+    const have = ok ? daySecs(k, id, now) : 0;
+    edHave.textContent = fmtClock(have * 1000);
+    edGo.disabled = !(have >= 1 && edAmount() > 0);
+    edClear.disabled = !(have >= 1);
+    edNote.textContent = state.timers[id].run && k === todayK ? 'this stopwatch is still running. removing time won\u2019t stop it.' : '';
+  }
+  function openEd(id, k) {
+    edSub.value = id;
+    edDay.max = dayKey(new Date());
+    edDay.value = k;
+    edHr.value = ''; edMin.value = '';
+    refreshEd();
+    ed.showModal();
+    edHr.focus();
+  }
+  [edSub, edDay, edHr, edMin].forEach(el => el.addEventListener('input', refreshEd));
+  function doRemove(secs) {
+    const u = removeTime(edSub.value, edDay.value, secs);
+    ed.close();
+    if (u) showToast(u);
+  }
+  edGo.addEventListener('click', () => doRemove(edAmount()));
+  edClear.addEventListener('click', () => doRemove(Infinity));
+  ed.querySelector('form').addEventListener('submit', e => {
+    if (e.submitter && e.submitter.value === 'cancel') return;
+    e.preventDefault();
+    if (!edGo.disabled) doRemove(edAmount());
+  });
+
+  const toast = $('#toast');
+  let toastTimer = 0, lastUndo = null;
+  function showToast(u) {
+    const s = SUBJECTS.find(x => x.id === u.id), d = parseKey(u.k);
+    $('#toast-msg').textContent = `removed ${fmtClock(u.cut * 1000)} from ${s.short} on ${MON[d.getMonth()]} ${d.getDate()}`;
+    lastUndo = u;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.classList.remove('show'); lastUndo = null; }, 10000);
+  }
+  $('#toast-undo').addEventListener('click', () => {
+    if (lastUndo) undoRemove(lastUndo);
+    lastUndo = null;
+    clearTimeout(toastTimer);
+    toast.classList.remove('show');
+  });
 
   /* ---------- clock ---------- */
   function renderDate() {
@@ -587,6 +741,7 @@
     if (dayKey(new Date(now)) !== builtFor) { renderDate(); renderCalendar(); }
     updateTimers(now);
     updateTodayCells(now);
+    if (ed.open) refreshEd();
   }
 
   renderDate();
